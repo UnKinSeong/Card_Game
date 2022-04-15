@@ -1,11 +1,14 @@
 package com.card_game.card_game.Controller;
 
 
+import com.card_game.card_game.Utility.Audio_Codex;
 import com.card_game.card_game.View.Menu_View;
 import javafx.animation.AnimationTimer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class Menu_Controller extends Controller_SM{
     private final Map<Integer,String> Menus = new HashMap<>();
@@ -13,7 +16,7 @@ public class Menu_Controller extends Controller_SM{
         //"Start","Score",
         //                    "Option","Credit",
         //                    "Exit"
-        Menus.put(0,"Start");
+        Menus.put(0,"Start"); // game //
         Menus.put(1,"Score");
         Menus.put(2,"Exit");
 
@@ -22,7 +25,7 @@ public class Menu_Controller extends Controller_SM{
     public void enter_NextState(int id) {
         clean_Up();
         switch (id){
-            case 0->{setState("Start");}
+            case 0->{setState("Game");}
             case 1->{setState("Score");}
             case 2->{System.exit(0);}
         }
@@ -33,6 +36,9 @@ public class Menu_Controller extends Controller_SM{
     public void clean_Up() {
         timeline.stop();
         menu_view.clean_Up();
+        ArrayList<String> audios = getAudios();
+        for(String s : audios)
+            Audio_Codex.stop(s);
     }
     @Override
     public void init() {
@@ -81,6 +87,13 @@ public class Menu_Controller extends Controller_SM{
                 fDeltaTime -= fOPTIONAL_TIME;
             }
             if (System.currentTimeMillis() - timer >= 1000) {
+                if (!Audio_Codex.is_Playing(currentAudio)){
+                    ArrayList<String> audios = getAudios();
+                    currentAudio = audios.get(new Random().nextInt(audios.size()));
+                    if(currentAudio!=null){
+                        Audio_Codex.play(currentAudio);
+                    }
+                }
                 System.out.println("UPS: " + cUPS + "| FPS: " + cFPS);
                 getStage().setTitle("Menu UPS:"+cUPS);
                 cUPS = 0;
@@ -89,7 +102,7 @@ public class Menu_Controller extends Controller_SM{
             }
         }
     };
-
+    private String currentAudio;
     private void draw(double v) {
         menu_view.render(v);
     }

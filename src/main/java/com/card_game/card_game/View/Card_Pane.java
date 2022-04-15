@@ -79,7 +79,7 @@ public class Card_Pane extends Pane {
             texts[i].minHeight(rec_width);
             Font_Scale_Rectangle.scaleTextToFit_Rect(texts[i],boxes[i].getWidth(),rec_height);
             texts[i].setLayoutX(boxes[i].getLayoutX());
-            texts[i].setLayoutY(boxes[i].getLayoutY()+texts[i].getFont().getSize());
+            texts[i].setLayoutY(boxes[i].getLayoutY()+rec_height);
         }
 
 

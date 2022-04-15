@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -57,9 +58,15 @@ public abstract class Controller_SM{
     }
 
 
+    public ArrayList<String> getAudios() {
+        return audios;
+    }
+    public void setAudios(ArrayList<String> audios1){
+        audios = audios1;
+    }
+
+    public ArrayList<String> audios;
     public abstract void enter_NextState(int id);
-
     public abstract void clean_Up();
-
     public abstract void init();
 }

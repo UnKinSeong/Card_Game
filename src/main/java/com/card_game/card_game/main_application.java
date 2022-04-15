@@ -28,9 +28,11 @@ public class main_application extends Application {
         String audios[] = {
                 "/Music/Card_Base_Audio_Effects",
                 "/Music/Game_Stage_Audio/",
-                "/Music/Menu_Music/"
+                "/Music/Menu_Music/",
+                "/Music/Battle_Music/"
         };
-        initGameAudio(audios);
+        initAudio(audios[0]);
+        initAudio(audios[1]);
         Card_Container.init_card_Pool();
         Controller_SM.setPane(new Pane());
         Controller_SM.setScene(new Scene(Controller_SM.getPane(),710,400));
@@ -38,11 +40,12 @@ public class main_application extends Application {
         Controller_SM.getStage().setScene(Controller_SM.getScene());
 
         Controller_SM.addState("Menu",new Menu_Controller());
-        Controller_SM.addState("Start",new Game_Controller());
+        Controller_SM.addState("Game",new Game_Controller());
         Controller_SM.addState("Score",new Score_Controller());
         Controller_SM.addState("current", Controller_SM.getState("Menu"));
 
-        System.out.println(Player_Database.get_Player_History().size());
+        Controller_SM.getState("Menu").setAudios(initAudio(audios[2]));
+        Controller_SM.getState("Game").setAudios(initAudio(audios[3]));
 
 
         Controller_SM.getState("current").init();
@@ -62,7 +65,7 @@ public class main_application extends Application {
             if (songArray != null) {
                 for(File file : songArray){
                     Audio_Codex.add(file.getName(),file.toURI());
-                    audio_file_name.add(file.toString());
+                    audio_file_name.add(file.getName());
                 }
             }
         }
@@ -70,12 +73,6 @@ public class main_application extends Application {
             return audio_file_name;
         }else{
             return null;
-        }
-    }
-
-    private void initGameAudio(String[] Audios){
-        for(String s : Audios){
-            initAudio(s);
         }
     }
     private void initStage(){

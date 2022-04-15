@@ -102,6 +102,9 @@ public class Card_Container {
         return card_Inventory;
     }
 
+    public static int getInventorySize(){
+        return card_Inventory.size();
+    }
     public static Card_Pane Draw_Card() {
         Card_Pane randomCard = null;
         if(Card_DataBase.size()<=0)
@@ -112,6 +115,13 @@ public class Card_Container {
                 card_Inventory.add(randomCard);
                 return randomCard;
             }
+        }
+    }
+
+    public static void removeCardFromInventory(Card_Pane card) {
+        int index = card_Inventory.indexOf(card);
+        if(index>=0){
+            card_Inventory.remove(card);
         }
     }
 }

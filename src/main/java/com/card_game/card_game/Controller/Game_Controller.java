@@ -1,6 +1,7 @@
 package com.card_game.card_game.Controller;
 
 import com.card_game.card_game.Model.Card_Container;
+import com.card_game.card_game.Utility.Audio_Codex;
 import com.card_game.card_game.View.Card_Pane;
 import com.card_game.card_game.View.Game_View;
 import javafx.animation.AnimationTimer;
@@ -11,6 +12,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Game_Controller extends Controller_SM{
     @Override
@@ -29,6 +31,8 @@ public class Game_Controller extends Controller_SM{
         game_view.getRectanglePane(6).removeEventHandler(MouseEvent.MOUSE_CLICKED, mouse_DrawCard);
         game_view.getRectanglePane(7).removeEventHandler(MouseEvent.MOUSE_CLICKED,mouse_FireCard);
         game_view.clean_Up();
+        for(String s : audios)
+            Audio_Codex.stop(s);
     }
 
     private void draw(double v) {
@@ -75,6 +79,13 @@ public class Game_Controller extends Controller_SM{
                 fDeltaTime -= fOPTIONAL_TIME;
             }
             if (System.currentTimeMillis() - timer >= 1000) {
+                if (!Audio_Codex.is_Playing(currentAudio)){
+                    ArrayList<String> audios = getAudios();
+                    currentAudio = audios.get(new Random().nextInt(audios.size()));
+                    if(currentAudio!=null){
+                        Audio_Codex.play(currentAudio);
+                    }
+                }
                 System.out.println("UPS: " + cUPS + "| FPS: " + cFPS);
                 getStage().setTitle("Game UPS: "+cUPS);
                 cUPS = 0;
@@ -83,7 +94,7 @@ public class Game_Controller extends Controller_SM{
             }
         }
     };
-
+    private String currentAudio;
     @Override
     public void init() {
         game_view = new Game_View();
@@ -95,11 +106,18 @@ public class Game_Controller extends Controller_SM{
         };
 
         mouse_DrawCard = mouseEvent -> {
-            game_view.addCard(Card_Container.Draw_Card());
+            if(Card_Container.getInventorySize()<5) {
+                game_view.addCard(Card_Container.Draw_Card());
+                Audio_Codex.play("Draw_Card.mp3");
+            }else{
+                Audio_Codex.play("Fire_Card_Failed.mp3");
+            }
         };
         mouse_FireCard = mouseEvent -> {
             ArrayList<Card_Pane> cards = Card_Container.getCurrentInventory();
             double damage=0,healthLost=0,boneLost=0,BloodLost=0;
+            boolean ifAny=false;
+            ArrayList<Card_Pane> removed = new ArrayList<>();
             for (Card_Pane card:cards){
                 if(card.isSelect()) {
                     damage += card.getDamage();
@@ -110,11 +128,19 @@ public class Game_Controller extends Controller_SM{
                     if (card.getType_name() == "Basic")
                         healthLost += card.getCost();
                     game_view.removeCard(card);
+                    removed.add(card);
+
+                    ifAny=true;
                 }
             }
+            for(Card_Pane card:removed)
+                Card_Container.removeCardFromInventory(card);
+            if(ifAny)
+                Audio_Codex.play("boom.mp3");
             System.out.println("Player taken "+healthLost+" damage|"+BloodLost+" BloodLost|"+boneLost+" BoneLost|");
             System.out.println("Player Deal "+damage+" Damage");
         };
+        game_view.generateEnemy();
         game_view.getRectanglePane(6).addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_DrawCard);
         game_view.getRectanglePane(7).addEventHandler(MouseEvent.MOUSE_CLICKED,mouse_FireCard);
         getStage().addEventHandler(KeyEvent.KEY_PRESSED,keyEventEventHandler);

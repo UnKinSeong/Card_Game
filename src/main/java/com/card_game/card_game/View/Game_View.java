@@ -1,5 +1,6 @@
 package com.card_game.card_game.View;
 
+import com.card_game.card_game.Model.Enemy_Generator;
 import com.card_game.card_game.Utility.Obj_Positions;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
@@ -31,8 +32,13 @@ public class Game_View extends View_Base{
         Card_Arrays = new ArrayList<>();
         card_Inits = new ArrayList<>();
         card_Destroy = new ArrayList<>();
+        enemyGenerator = new Enemy_Generator(this.mainPane);
+        enemyGenerator.setText_Related_Pos(r_Panes_Pos[3]);
     }
 
+    public void generateEnemy(){
+        enemyGenerator.newEnemy();
+    }
     public void addCard(Card_Pane cardPane){
         this.mainPane.getChildren().add(cardPane);
         Card_Arrays.add(cardPane);
@@ -60,11 +66,13 @@ public class Game_View extends View_Base{
         }
         card_Inits.clear();
         card_Destroy.clear();
+        enemyGenerator.CleanUp();
         this.mainPane.getChildren().removeAll(Card_Arrays);
     }
     @Override
     public void render(double dt) {
         Rendering_Cards();
+        enemyGenerator.update();
     }
     private void Rendering_Cards(){
 
@@ -162,6 +170,7 @@ public class Game_View extends View_Base{
                 {(double)1600/(double)1920,Row_2_EndY,1,Row_3_EndY},
         };
     }
+    private Enemy_Generator enemyGenerator;
 }
 
 

@@ -63,9 +63,7 @@ public class Audio_Codex {
                     teMediaPlayerList.add(tmp);
                     tmp.setOnEndOfMedia(() -> tmp.stop());
                     tmp.play();
-                    return;
-                }
-                else{
+                } else{
                     for(int i = 0; i < teMediaPlayerList.size();i++){
                         MediaPlayer target = teMediaPlayerList.get(i);
                         if(target!=null){
@@ -99,8 +97,8 @@ public class Audio_Codex {
                         last_.play();
                     }
 
-                    return;
                 }
+                return;
             }
         }
     }
