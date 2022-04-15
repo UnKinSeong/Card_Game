@@ -35,8 +35,8 @@ public class Card_Pane extends Pane {
         boxes[4].setLayoutY(main_LayY);
         boxes[4].setWidth(main_Width);
         boxes[4].setHeight(main_Height);
-        boxes[4].setFill(Color.TRANSPARENT);
         boxes[4].setStrokeWidth(Stroke_Width);
+        boxes[4].setFill(Color.WHITE);
         if(is_selected && is_over){
             boxes[4].setStroke(Color.PURPLE);
         }else if(is_selected) {
@@ -81,8 +81,6 @@ public class Card_Pane extends Pane {
             texts[i].setLayoutX(boxes[i].getLayoutX());
             texts[i].setLayoutY(boxes[i].getLayoutY()+rec_height);
         }
-
-
         for(int i = 0; i < 4; i++){
             boxes[i].setFill(Boxes_Colors[i+1]);
             texts[i].setFill(Text_Colors[i]);
@@ -231,7 +229,10 @@ public class Card_Pane extends Pane {
         this.addEventHandler(MouseEvent.MOUSE_EXITED, Mouse_Leave);
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, Mouse_Click);
 
-        getChildren().addAll(boxes);
+        for(int i=boxes.length-1;i>=0;i--){
+            getChildren().add(boxes[i]);
+        }
+
         getChildren().addAll(texts);
     }
     public static ArrayList<String> getAudioList() {
