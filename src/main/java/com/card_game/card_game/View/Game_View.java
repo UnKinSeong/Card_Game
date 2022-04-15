@@ -2,16 +2,11 @@ package com.card_game.card_game.View;
 
 import com.card_game.card_game.Utility.Obj_Positions;
 import javafx.event.EventHandler;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 
@@ -33,19 +28,94 @@ public class Game_View extends View_Base{
         }
         window_Changes = true;
         this.mainPane.getChildren().addAll(pane_border_box);
+        Card_Arrays = new ArrayList<>();
+        card_Inits = new ArrayList<>();
+        card_Destroy = new ArrayList<>();
     }
 
+    public void addCard(Card_Pane cardPane){
+        this.mainPane.getChildren().add(cardPane);
+        Card_Arrays.add(cardPane);
+        card_Inits.add(false);
+        card_Destroy.add(false);
+    }
+    public void removeCard(Card_Pane cardPane){
+        int index = Card_Arrays.indexOf(cardPane);
+        if(index >= 0){
+            card_Destroy.set(index,true);
+        }
+    }
+
+    public Rectangle getRectanglePane(int index){
+        assert index <= 7&&index>=0 : "Index of getRectanglePane must greater than 0 and less than 7";
+        return pane_border_box[index];
+    }
     @Override
     public void clean_Up() {
         this.mainPane.widthProperty().addListener(windowEventEventHandler);
         this.mainPane.heightProperty().addListener(windowEventEventHandler);
         this.mainPane.getChildren().removeAll(pane_border_box);
+        for(Card_Pane cp : Card_Arrays){
+            cp.CleanUp();
+        }
+        card_Inits.clear();
+        card_Destroy.clear();
+        this.mainPane.getChildren().removeAll(Card_Arrays);
     }
     @Override
     public void render(double dt) {
-
+        Rendering_Cards();
     }
+    private void Rendering_Cards(){
 
+        double card_PosX = pane_border_box[5].getLayoutX()+2;
+        double card_PosY = pane_border_box[5].getLayoutY()+2;
+
+        double card_height = pane_border_box[5].getHeight()-4;
+        double card_width = pane_border_box[5].getHeight()*0.6;
+        for(int i = Card_Arrays.size()-1; i>-1; i--){
+            if(card_Destroy.get(i)==true){
+                Card_Arrays.get(i).unselect();
+            }
+        }
+        for(int i = Card_Arrays.size()-1; i>-1; i--){
+            if(card_Destroy.get(i)==true){
+                this.mainPane.getChildren().remove(Card_Arrays.get(i));
+                card_Destroy.remove(i);
+                Card_Arrays.remove(i);
+                card_Inits.remove(i);
+            }
+        }
+        for(Card_Pane cb: Card_Arrays){
+            cb.setPrefHeight(card_height);
+            cb.setPrefWidth(card_width);
+        }
+        for(int i = 0; i< Card_Arrays.size(); i++){
+            Card_Arrays.get(i).setLayoutX(card_PosX+card_width*i);
+        }
+        for(int i = 0; i < Card_Arrays.size(); i++){
+            try{
+                if(card_Inits.get(i)){
+                    if(Card_Arrays.get(i).getLayoutY()>card_PosY){
+                        Card_Arrays.get(i).setLayoutY(Card_Arrays.get(i).getLayoutY()-1);
+                    }else if(Card_Arrays.get(i).getLayoutY()<card_PosY){
+                        Card_Arrays.get(i).setLayoutY(Card_Arrays.get(i).getLayoutY()+1);
+                    }
+                    if(Math.abs(Card_Arrays.get(i).getLayoutY()-card_PosY)<1){
+                        Card_Arrays.get(i).setLayoutY(card_PosY);
+                    }
+                    Card_Arrays.get(i).renderCard();
+                }
+                else{
+                    Card_Arrays.get(i).setLayoutY(pane_border_box[5].getHeight()+pane_border_box[5].getHeight());
+                    Card_Arrays.get(i).renderCard();
+                    card_Inits.set(i,true);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
     @Override
     public void update(Object dt) {
         if(window_Changes) {
@@ -67,7 +137,9 @@ public class Game_View extends View_Base{
 
     private EventHandler<KeyEvent> keyEventEventHandler;
 
-
+    private ArrayList<Card_Pane> Card_Arrays;
+    private ArrayList<Boolean> card_Inits;
+    private ArrayList<Boolean> card_Destroy;
 
     private Rectangle pane_border_box[] = new Rectangle[8];
     private Color paneBoxes_Color[] = {Color.YELLOW,Color.RED,Color.BLUE,Color.DEEPPINK,Color.GREEN,Color.PURPLE,Color.GOLDENROD,Color.RED};

@@ -1,12 +1,16 @@
 package com.card_game.card_game.Controller;
 
+import com.card_game.card_game.Model.Card_Container;
+import com.card_game.card_game.View.Card_Pane;
 import com.card_game.card_game.View.Game_View;
 import javafx.animation.AnimationTimer;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+
+import java.util.ArrayList;
 
 public class Game_Controller extends Controller_SM{
     @Override
@@ -22,6 +26,8 @@ public class Game_Controller extends Controller_SM{
     @Override
     public void clean_Up() {
         getStage().removeEventHandler(KeyEvent.KEY_PRESSED,keyEventEventHandler);
+        game_view.getRectanglePane(6).removeEventHandler(MouseEvent.MOUSE_CLICKED, mouse_DrawCard);
+        game_view.getRectanglePane(7).removeEventHandler(MouseEvent.MOUSE_CLICKED,mouse_FireCard);
         game_view.clean_Up();
     }
 
@@ -70,6 +76,7 @@ public class Game_Controller extends Controller_SM{
             }
             if (System.currentTimeMillis() - timer >= 1000) {
                 System.out.println("UPS: " + cUPS + "| FPS: " + cFPS);
+                getStage().setTitle("Game UPS: "+cUPS);
                 cUPS = 0;
                 cFPS = 0;
                 timer += 1000;
@@ -86,9 +93,35 @@ public class Game_Controller extends Controller_SM{
                 enter_NextState(0);
             }
         };
+
+        mouse_DrawCard = mouseEvent -> {
+            game_view.addCard(Card_Container.Draw_Card());
+        };
+        mouse_FireCard = mouseEvent -> {
+            ArrayList<Card_Pane> cards = Card_Container.getCurrentInventory();
+            double damage=0,healthLost=0,boneLost=0,BloodLost=0;
+            for (Card_Pane card:cards){
+                if(card.isSelect()) {
+                    damage += card.getDamage();
+                    if (card.getType_name() == "Blood")
+                        BloodLost += card.getCost();
+                    if (card.getType_name() == "Bone")
+                        boneLost += card.getCost();
+                    if (card.getType_name() == "Basic")
+                        healthLost += card.getCost();
+                    game_view.removeCard(card);
+                }
+            }
+            System.out.println("Player taken "+healthLost+" damage|"+BloodLost+" BloodLost|"+boneLost+" BoneLost|");
+            System.out.println("Player Deal "+damage+" Damage");
+        };
+        game_view.getRectanglePane(6).addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_DrawCard);
+        game_view.getRectanglePane(7).addEventHandler(MouseEvent.MOUSE_CLICKED,mouse_FireCard);
         getStage().addEventHandler(KeyEvent.KEY_PRESSED,keyEventEventHandler);
         timeline.start();
     }
     private EventHandler<KeyEvent> keyEventEventHandler;
+    private EventHandler<MouseEvent> mouse_DrawCard;
+    private EventHandler<MouseEvent> mouse_FireCard;
     private Game_View game_view;
 }

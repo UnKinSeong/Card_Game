@@ -1,6 +1,7 @@
 package com.card_game.card_game.View;
 
 import com.card_game.card_game.Utility.Audio_Codex;
+import com.card_game.card_game.Utility.Font_Scale_Rectangle;
 import com.card_game.card_game.Utility.Random_Number;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -12,9 +13,10 @@ import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 
+import static com.card_game.card_game.Utility.Font_Scale_Rectangle.scaleTextToFit_Rect;
 import static com.card_game.card_game.Utility.Obj_Positions.setRectanglePosWH;
 
-public class Card_View extends Pane {
+public class Card_Pane extends Pane {
     public static double scaleFontToFit(double width,double stringWidth,double fontSize) {
         if(stringWidth <= width)
             return fontSize;
@@ -60,42 +62,24 @@ public class Card_View extends Pane {
 
         double text_width,text_height,text_Size;
         double rec_layX, rec_layY, rec_width, rec_height;
-        for (int i = 0; i < 4;i++) {
-            text_width = texts[i].getLayoutBounds().getWidth();
-            text_height = texts[i].getLayoutBounds().getHeight();
-            text_Size = texts[i].getFont().getSize();
 
-            texts[i].setFont(Font.font("arial", text_height));
-            texts[0].setText(card_Name);
-            texts[1].setText(type_name);
-            texts[2].setText(Integer.toString((int) base_damage));
-            texts[3].setText(Integer.toString((int)self_damage));
-            rec_layX = boxes[i].getLayoutX();
-            rec_layY = boxes[i].getLayoutY()+boxes[i].getHeight();
+        texts[0].setText(card_Name);
+        texts[1].setText(type_name);
+        texts[2].setText(Integer.toString((int) base_damage));
+        texts[3].setText(Integer.toString((int)self_damage));
+
+        for(int i = 0; i < 4; i++){
             rec_width = boxes[i].getWidth();
             rec_height = boxes[i].getHeight();
-
-            if(text_height<rec_height) {
-                if(text_width>rec_width){
-                    text_Size = scaleFontToFit(rec_width,text_width,text_Size);
-                }else if(Math.abs(text_width-rec_width)>0.2){
-                    text_Size = rec_height;
-                }else{
-                    text_Size = scaleFontToFit(rec_width,text_width,text_Size);
-                }
-            }else if(text_height>rec_height){
-                if(text_width>rec_width){
-                    text_Size = scaleFontToFit(rec_width,text_width,text_Size);
-                }else if (Math.abs(text_width-rec_width)>0.2){
-                    text_Size = rec_height;
-                }else{
-                    text_Size = scaleFontToFit(rec_width,text_width,text_Size);
-                }
-            }
-
-            texts[i].setLayoutX(rec_layX);
-            texts[i].setLayoutY(rec_layY-text_Size*0.15);
-            texts[i].setFont(Font.font("arial", text_Size));
+            texts[i].prefWidth(rec_width);
+            texts[i].minWidth(rec_width);
+            texts[i].maxWidth(rec_width);
+            texts[i].prefWidth(rec_width);
+            texts[i].maxHeight(rec_width);
+            texts[i].minHeight(rec_width);
+            Font_Scale_Rectangle.scaleTextToFit_Rect(texts[i],boxes[i].getWidth(),rec_height);
+            texts[i].setLayoutX(boxes[i].getLayoutX());
+            texts[i].setLayoutY(boxes[i].getLayoutY()+texts[i].getFont().getSize());
         }
 
 
@@ -211,7 +195,7 @@ public class Card_View extends Pane {
     }
 
     private boolean is_over = false;
-    public Card_View(
+    public Card_Pane(
             String card_Name,
             String type_name,
             double base_damage,

@@ -106,7 +106,6 @@ public class Score_View extends View_Base{
                 DataInfBox[i].setStrokeWidth(stroke_Width);
                 DataInfBox[i].setFill(DataInfBox_Color[i]);
             }
-
             window_Changes=false;
         }
         for(Text_List_View tlv : DataTextBox){

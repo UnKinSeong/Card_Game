@@ -30,14 +30,14 @@ public class Text_List_View {
     private double re_spacing = 0;
 
     //-----------------------------------------------------------------//
-    // Button List and button name to id the index for later operation // But why not map? -- quote by someone.
+    //   Text List and Text name to id the index for later operation   // But why not map? -- quote by someone.
     //-----------------------------------------------------------------//
     private final List<Text> list_of_Text = new ArrayList<>();
     private final List<String> list_of_Text_Ids = new ArrayList<>();
 
-    //--------------------------//
-    // The state of the menuBtn //
-    //--------------------------//
+    //----------------------------//
+    // The state of the TextField //
+    //----------------------------//
     private boolean is_init = false;
 
     //-------------//

@@ -10,7 +10,7 @@ public class Audio_Codex {
     private static ArrayList<Media> media_Codex = new ArrayList<>();
     private static ArrayList<ArrayList<MediaPlayer>> mediaPlayer_Codex = new ArrayList<>();
     private static ArrayList<String> mediaName_Codex = new ArrayList<>();
-    private static MediaPlayer[] template_Mediaplayer = new MediaPlayer[5];
+    private static MediaPlayer[] template_MediaPlayer = new MediaPlayer[5];
     private Audio_Codex(){}
     public static void add(String nameId, URI uri){
         if(uri != null){

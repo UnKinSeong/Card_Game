@@ -82,6 +82,7 @@ public class Menu_Controller extends Controller_SM{
             }
             if (System.currentTimeMillis() - timer >= 1000) {
                 System.out.println("UPS: " + cUPS + "| FPS: " + cFPS);
+                getStage().setTitle("Menu UPS:"+cUPS);
                 cUPS = 0;
                 cFPS = 0;
                 timer += 1000;
