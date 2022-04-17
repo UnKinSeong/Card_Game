@@ -1,23 +1,30 @@
 package com.card_game.card_game.Controller;
 
-import com.card_game.card_game.Model.Card_Container;
+import com.card_game.card_game.Model.Card.Bone_Card;
+import com.card_game.card_game.Model.Card.Card_Container;
+import com.card_game.card_game.Model.Card.card_Base;
+import com.card_game.card_game.Model.Card.InGame_Player;
+import com.card_game.card_game.Model.Enemy_Generator;
+import com.card_game.card_game.Model.Player;
+import com.card_game.card_game.Model.Player_Database;
 import com.card_game.card_game.Utility.Audio_Codex;
 import com.card_game.card_game.View.Card_Pane;
 import com.card_game.card_game.View.Game_View;
-import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Objects;
 
 public class Game_Controller extends Controller_SM{
     @Override
     public void enter_NextState(int id) {
         clean_Up();
+        System.out.println("CleanUp");
         switch (id){
             case 0->{setState("Menu");}
         }
@@ -27,124 +34,160 @@ public class Game_Controller extends Controller_SM{
 
     @Override
     public void clean_Up() {
+        gameLoop.stop();
+        cards.clear();
+        Card_Container.removeAllCardFromInventory();
         getStage().removeEventHandler(KeyEvent.KEY_PRESSED,keyEventEventHandler);
         game_view.getRectanglePane(6).removeEventHandler(MouseEvent.MOUSE_CLICKED, mouse_DrawCard);
         game_view.getRectanglePane(7).removeEventHandler(MouseEvent.MOUSE_CLICKED,mouse_FireCard);
+        game_view.getStaticPane(3).removeEventHandler(MouseEvent.MOUSE_CLICKED, mouse_DrawCard);
+        game_view.getStaticPane(4).removeEventHandler(MouseEvent.MOUSE_CLICKED,mouse_FireCard);
         game_view.clean_Up();
+        inGame_player = null;
         for(String s : audios)
             Audio_Codex.stop(s);
     }
 
-    private void draw(double v) {
+    protected void draw(double v) {
+        if(is_dead&&CanBeScoreBoard==false){
+            enter_NextState(0);
+            return;
+        }
+        if(is_dead&&CanBeScoreBoard){
+            if(td.getResult()!=null){
+                System.out.println(td.getResult());
+                tempPlayer.setPlayerName(td.getResult());
+                Player_Database.add_Player(tempPlayer);
+                enter_NextState(0);
+                return;
+            }
+        }
         game_view.render(v);
     }
-
-    private void update() {
+    protected void update() {
         game_view.update(null);
+        game_view.getStaticPane(0).setText("Health : "+inGame_player.getHealthCap()+" / "+inGame_player.getHealth());
+        game_view.getStaticPane(1).setText("Bone : "+inGame_player.getBoneCap()+" / "+inGame_player.getBone());
+        game_view.getStaticPane(2).setText("Blood : "+inGame_player.getBloodCap()+" / "+inGame_player.getBlood());
     }
+    private InGame_Player inGame_player;
+    private void define_Game_ViewLogic(){
+        ArrayList<card_Base> cardInventory = Card_Container.getCurrentInventory();
 
-    private AnimationTimer timeline = new AnimationTimer() {
-        final int MAX_FPS = 120;
-        final int MAX_UPS = 120;
-
-        final int one_Second = 1000000000;
-
-        final double uOPTIONAL_TIME = one_Second / MAX_UPS;
-        final double fOPTIONAL_TIME = one_Second / MAX_FPS;
-
-        double uDeltaTime = 0, fDeltaTime = 0;
-        int cFPS = 0, cUPS = 0;
-        long startTime = System.nanoTime();
-        long timer = System.currentTimeMillis();
-
-        @Override
-        public void start() {
-            super.start();
+        for(card_Base cp: cardInventory){
+            game_view.addCard(new Card_Pane(cp));
         }
-
-        @Override
-        public void handle(long now) {
-            long currentTime = System.nanoTime();
-            uDeltaTime += (currentTime - startTime);
-            fDeltaTime += (currentTime - startTime);
-            startTime = currentTime;
-            if (uDeltaTime >= uOPTIONAL_TIME) {
-                update();
-                cUPS++;
-                uDeltaTime -= uOPTIONAL_TIME;
-            }
-            if (fDeltaTime >= fOPTIONAL_TIME) {
-                draw(fDeltaTime/one_Second);
-                cFPS++;
-                fDeltaTime -= fOPTIONAL_TIME;
-            }
-            if (System.currentTimeMillis() - timer >= 1000) {
-                if (!Audio_Codex.is_Playing(currentAudio)){
-                    ArrayList<String> audios = getAudios();
-                    currentAudio = audios.get(new Random().nextInt(audios.size()));
-                    if(currentAudio!=null){
-                        Audio_Codex.play(currentAudio);
-                    }
-                }
-                System.out.println("UPS: " + cUPS + "| FPS: " + cFPS);
-                getStage().setTitle("Game UPS: "+cUPS);
-                cUPS = 0;
-                cFPS = 0;
-                timer += 1000;
-            }
-        }
-    };
-    private String currentAudio;
-    @Override
-    public void init() {
-        game_view = new Game_View();
-        game_view.init(getPane());
-        keyEventEventHandler = keyEvent -> {
-            if(new KeyCodeCombination(KeyCode.ESCAPE).match(keyEvent)){
-                enter_NextState(0);
-            }
-        };
-
         mouse_DrawCard = mouseEvent -> {
-            if(Card_Container.getInventorySize()<5) {
-                game_view.addCard(Card_Container.Draw_Card());
+            if(Card_Container.getInventorySize()<7) {
+                Card_Pane tem = new Card_Pane(Objects.requireNonNull(Card_Container.Draw_Card()));
+                tem.addLocalEventHandler(MouseEvent.MOUSE_CLICKED,event -> {
+                    if(tem.isSelect()){
+                        cards.add(tem);
+                    }else{
+                        cards.remove(tem);
+                    }
+                });
+                game_view.addCard(tem);
                 Audio_Codex.play("Draw_Card.mp3");
             }else{
                 Audio_Codex.play("Fire_Card_Failed.mp3");
             }
         };
         mouse_FireCard = mouseEvent -> {
-            ArrayList<Card_Pane> cards = Card_Container.getCurrentInventory();
-            double damage=0,healthLost=0,boneLost=0,BloodLost=0;
-            boolean ifAny=false;
-            ArrayList<Card_Pane> removed = new ArrayList<>();
-            for (Card_Pane card:cards){
-                if(card.isSelect()) {
-                    damage += card.getDamage();
-                    if (card.getType_name() == "Blood")
-                        BloodLost += card.getCost();
-                    if (card.getType_name() == "Bone")
-                        boneLost += card.getCost();
-                    if (card.getType_name() == "Basic")
-                        healthLost += card.getCost();
-                    game_view.removeCard(card);
-                    removed.add(card);
+            boolean any = cards.size()>0;
+            double damage =0;
+            double health_Lost = 0,blood_Lost = 0, bone_Lost = 0;
+            card_Base card = null;
+            for(int i = 0; i<cards.size();i++){
+                System.out.println("Remove "+cards.get(i).getCardBase().getName());
+                card = cards.get(i).getCardBase();
+                game_view.removeCard(cards.get(i));
+                Card_Container.removeCardFromInventory(cards.get(i).getCardBase());
+                health_Lost = 0;blood_Lost = 0; bone_Lost = 0;
+                damage += card.getDamage();
 
-                    ifAny=true;
+                System.out.println("Cost = "+card.getCost());
+                tempPlayer.setDamageDeal(tempPlayer.getDamageDeal()+damage);
+                tempPlayer.setDamageTaken(tempPlayer.getDamageTaken()+card.getCost());
+                switch (card.getTypeName()){
+                    case "Basic"->{
+                        health_Lost+=card.getCost();
+                    }
+                    case "Blood"->{
+                        blood_Lost+=card.getCost();
+                    }
+                    case "Bone"->{
+                        bone_Lost+=card.getCost();
+                    }
+                }
+                inGame_player.setHealth(inGame_player.getHealth()-health_Lost);
+                inGame_player.setBlood(inGame_player.getBlood()-blood_Lost);
+                if(inGame_player.getBlood()<0){
+                    inGame_player.setHealth(inGame_player.getHealth()+inGame_player.getBlood());
+                    inGame_player.setBlood(0);
+                }
+                inGame_player.setBone(inGame_player.getBone()-bone_Lost);
+                if(inGame_player.getBone()<0){
+                    inGame_player.setHealth(inGame_player.getHealth()+inGame_player.getBone());
+                    inGame_player.setBone(0);
+                }
+
+                Enemy_Generator enemyGenerator = game_view.getEnemyGenerator();
+                inGame_player.setHealth(inGame_player.getHealth()-enemyGenerator.damage());
+                if(enemyGenerator.getHealth()-damage<0){
+                    enemyGenerator.newEnemy();
+                }else{
+                    enemyGenerator.getDamage(damage);
+                }
+                if(inGame_player.getHealth()<0){
+                    System.out.println("The Player is dead");
+                    if(Player_Database.is_better(tempPlayer.get_Over_Score())){
+                        CanBeScoreBoard = true;
+                        td.show();
+                    }
+                    is_dead = true;
                 }
             }
-            for(Card_Pane card:removed)
-                Card_Container.removeCardFromInventory(card);
-            if(ifAny)
+
+            System.out.println("Deal "+(int)damage+" Damages| took "+(int)health_Lost+" self Damage");
+
+            cards.clear();
+            if(any) {
+                tempPlayer.setRoundPass(tempPlayer.getRoundPass()+1);
                 Audio_Codex.play("boom.mp3");
-            System.out.println("Player taken "+healthLost+" damage|"+BloodLost+" BloodLost|"+boneLost+" BoneLost|");
-            System.out.println("Player Deal "+damage+" Damage");
+            }
         };
         game_view.generateEnemy();
         game_view.getRectanglePane(6).addEventHandler(MouseEvent.MOUSE_CLICKED, mouse_DrawCard);
         game_view.getRectanglePane(7).addEventHandler(MouseEvent.MOUSE_CLICKED,mouse_FireCard);
+        game_view.getStaticPane(3).addEventHandler(MouseEvent.MOUSE_CLICKED,mouse_DrawCard);
+        game_view.getStaticPane(4).addEventHandler(MouseEvent.MOUSE_CLICKED,mouse_FireCard);
+    }
+    private ArrayList<Card_Pane> cards = new ArrayList<>();
+    private boolean is_dead = false;
+    private boolean CanBeScoreBoard = false;
+    private Player tempPlayer;
+    private TextInputDialog td = new TextInputDialog("enter any text");
+    {
+        td.setHeaderText("enter your name");
+    }
+    @Override
+    public void init() {
+        cards = new ArrayList<>();
+        is_dead = false;
+        CanBeScoreBoard = false;
+        inGame_player = new InGame_Player();
+        tempPlayer=new Player();
+        game_view = new Game_View();
+        game_view.init(getPane());
+        define_Game_ViewLogic();
+        keyEventEventHandler = keyEvent -> {
+            if(new KeyCodeCombination(KeyCode.ESCAPE).match(keyEvent)){
+                enter_NextState(0);
+            }
+        };
         getStage().addEventHandler(KeyEvent.KEY_PRESSED,keyEventEventHandler);
-        timeline.start();
+        gameLoop.start();
     }
     private EventHandler<KeyEvent> keyEventEventHandler;
     private EventHandler<MouseEvent> mouse_DrawCard;

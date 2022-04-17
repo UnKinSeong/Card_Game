@@ -14,6 +14,13 @@ public class Font_Scale_Rectangle {
     public static void scaleTextToFit_Rect(Text text, double rec_width, double rec_height){
         double text_width,text_height,text_Size;
 
+        text.prefWidth(rec_width);
+        text.minWidth(rec_width);
+        text.maxWidth(rec_width);
+        text.prefWidth(rec_height);
+        text.maxHeight(rec_height);
+        text.minHeight(rec_height);
+
         text_width  = text.getLayoutBounds().getWidth();
         text_height = text.getLayoutBounds().getHeight();
         text_Size   = text.getFont().getSize();

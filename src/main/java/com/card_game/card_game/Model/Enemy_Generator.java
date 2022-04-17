@@ -39,12 +39,12 @@ public class Enemy_Generator {
     public void update(){
         if(Enemy_Image_View!=null) {
 
+            double Stroke_Width = 0.005*Math.min(mainPane.getHeight(),mainPane.getWidth());
             double [] pos_ = Obj_Positions.Relative_Pos_TPos(mainPane.getWidth(), mainPane.getHeight(), text_Related_Pos);
-
-            double LayX = pos_[0];
-            double LayY = pos_[1];
-            double width = pos_[2]-pos_[0];
-            double height = pos_[3]-pos_[1];
+            double LayX = pos_[0]+Stroke_Width*2;
+            double LayY = pos_[1]+Stroke_Width*2;
+            double width = pos_[2]-pos_[0]-Stroke_Width*4;
+            double height = pos_[3]-pos_[1]-Stroke_Width*4;
             Enemy_Image_View.setLayoutX(LayX);
             Enemy_Image_View.setLayoutY(LayY);
             if(first_){

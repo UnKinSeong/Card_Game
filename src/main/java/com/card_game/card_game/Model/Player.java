@@ -1,6 +1,7 @@
 package com.card_game.card_game.Model;
 
 public class Player implements java.io.Serializable{
+    public Player(){}
     public Player(String name,double damageDeal, double damageTaken,int roundPass){
         this.playerName=name;
         this.damageDeal=damageDeal;
@@ -17,6 +18,10 @@ public class Player implements java.io.Serializable{
     }
     public double get_Over_Score(){
         return (damageDeal+damageTaken)*(double)roundPass;
+    }
+
+    public void setPlayerName(String result) {
+        playerName = result;
     }
 
     public static class PlayerBuilder{
@@ -56,7 +61,7 @@ public class Player implements java.io.Serializable{
     public void setRoundPass(int roundPass){
         this.roundPass = roundPass;
     }
-    public double getRoundPass(){
+    public int getRoundPass(){
         return roundPass;
     }
     public void setDamageTaken(double damageTaken) {

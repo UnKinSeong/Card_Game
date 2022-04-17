@@ -103,11 +103,11 @@ public class Menu_Controller extends Controller_SM{
         }
     };
     private String currentAudio;
-    private void draw(double v) {
+    protected void draw(double v) {
         menu_view.render(v);
     }
 
-    private void update() {
+    protected void update() {
         menu_view.update(null);
     }
     private Menu_View menu_view;

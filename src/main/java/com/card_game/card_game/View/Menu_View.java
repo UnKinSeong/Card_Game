@@ -103,7 +103,6 @@ public class Menu_View extends View_Base{
         }
     }
 
-
     @Override
     public void render(double dt) {
         if(window_Changes) {
@@ -123,7 +122,6 @@ public class Menu_View extends View_Base{
 
     // Pane 1 Display Buttons //
     private Menu_Btn_List menu_btn_list;
-    private final List<String> Menus_Btn_Name = Arrays.asList("Start","Score", "Option","Credit", "Exit");
 
     // Pane 2 Display Ball //
     private Rectangle ball_Rectangle;

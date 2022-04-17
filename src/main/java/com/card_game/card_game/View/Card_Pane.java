@@ -1,15 +1,19 @@
 package com.card_game.card_game.View;
 
+import com.card_game.card_game.Model.Card.card_Base;
 import com.card_game.card_game.Utility.Audio_Codex;
 import com.card_game.card_game.Utility.Font_Scale_Rectangle;
 import com.card_game.card_game.Utility.Random_Number;
+import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Pair;
 
 import java.util.ArrayList;
 
@@ -63,10 +67,10 @@ public class Card_Pane extends Pane {
         double text_width,text_height,text_Size;
         double rec_layX, rec_layY, rec_width, rec_height;
 
-        texts[0].setText(card_Name);
-        texts[1].setText(type_name);
-        texts[2].setText(Integer.toString((int) base_damage));
-        texts[3].setText(Integer.toString((int)self_damage));
+        texts[0].setText(tarCard.getName());
+        texts[1].setText(tarCard.getTypeName());
+        texts[2].setText(Integer.toString((int) tarCard.getBaseDamage()));
+        texts[3].setText(Integer.toString((int) tarCard.getCost()));
 
         for(int i = 0; i < 4; i++){
             rec_width = boxes[i].getWidth();
@@ -86,8 +90,7 @@ public class Card_Pane extends Pane {
             texts[i].setFill(Text_Colors[i]);
         }
     }
-    public void Update_Card_Detail(){
-    }
+
     public void setBoxes_Colors(Color[] colors){
         Boxes_Colors=colors;
     }
@@ -96,10 +99,8 @@ public class Card_Pane extends Pane {
     }
 
     public String getType_name(){
-        return type_name;
+        return tarCard.getTypeName();
     }
-    private String card_Name;
-    private String type_name;
     private final double[][] Boxes_Pos;
     {
         final double ResulX = 1080;
@@ -153,12 +154,6 @@ public class Card_Pane extends Pane {
             Color.BLACK
     };
 
-
-    private EventHandler<MouseEvent> Mouse_On;
-    private EventHandler<MouseEvent> Mouse_Leave;
-    private EventHandler<MouseEvent> UnSelected_Event;
-    private EventHandler<MouseEvent> Mouse_Click;
-
     public void unselect(){
         is_selected = false;
     }
@@ -168,44 +163,25 @@ public class Card_Pane extends Pane {
     }
     public boolean is_removed = false;
     public void CleanUp(){
-        removeEventFilter(MouseEvent.MOUSE_ENTERED, Mouse_On);
-        removeEventFilter(MouseEvent.MOUSE_EXITED, Mouse_Leave);
-        removeEventFilter(MouseEvent.MOUSE_CLICKED, Mouse_Click);
+        for (Pair<EventType,EventHandler> pr : events)
+            removeEventHandler(pr.getKey(),pr.getValue());
         getChildren().removeAll(boxes);
         getChildren().removeAll(texts);
     }
     private Rectangle[] boxes = new Rectangle[5];
     private Text[] texts = new Text[4];
-    private double
-            base_damage=0,
-            base_critical_chance=0,
-            self_damage=0;
-    private boolean is_selected = false;
-    public void setType_name(String str){
-        type_name = str;
-    }
 
-    public double getCost() {
-        return self_damage;
-    }
-    public double getDamage(){
-        return base_damage + (1+(base_critical_chance- Random_Number.randDouble(0.0,base_critical_chance)))*base_damage;
-    }
+    private boolean is_selected = false;
 
     private boolean is_over = false;
-    public Card_Pane(
-            String card_Name,
-            String type_name,
-            double base_damage,
-            double base_critical_chance,
-            double self_damage
-    )
-    {
-        this.card_Name = card_Name;
-        this.type_name=type_name;
-        this.base_damage = base_damage;
-        this.base_critical_chance = base_critical_chance;
-        this.self_damage = self_damage;
+    private card_Base tarCard;
+    public Card_Pane(card_Base cardBase){
+        tarCard = cardBase;
+
+        Boxes_Colors = tarCard.getBoxes_Colors();
+        Text_Colors = tarCard.getText_Colors();
+
+
         for(int i=0;i<boxes.length;i++){
             boxes[i]=new Rectangle();
         }
@@ -213,21 +189,16 @@ public class Card_Pane extends Pane {
             texts[i]=new Text();
         }
 
-        Mouse_On = mouseEvent -> {
-            is_over=true;
-            Audio_Codex.play("Item_Over.mp3");
-        };
-        Mouse_Leave = mouseEvent -> {
-            is_over=false;
-        };
-        Mouse_Click = mouseEvent -> {
-            is_selected=!is_selected;
-            Audio_Codex.play("Item_Selected.mp3");
-        };
+        EventHandler<MouseEvent> mouseOn = mouseEvent -> {is_over=true;};
+        EventHandler<MouseEvent> mouseExit = mouseEvent -> {is_over=false;};
+        EventHandler<MouseEvent> mouseClick = mouseEvent -> {is_selected=!is_selected;};
 
-        this.addEventHandler(MouseEvent.MOUSE_ENTERED, Mouse_On);
-        this.addEventHandler(MouseEvent.MOUSE_EXITED, Mouse_Leave);
-        this.addEventHandler(MouseEvent.MOUSE_CLICKED, Mouse_Click);
+        this.addEventHandler(MouseEvent.MOUSE_ENTERED, mouseOn);
+        this.addEventHandler(MouseEvent.MOUSE_EXITED, mouseExit);
+        this.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseClick);
+        events.add(new Pair<>(MouseEvent.MOUSE_ENTERED,mouseOn));
+        events.add(new Pair<>(MouseEvent.MOUSE_EXITED, mouseExit));
+        events.add(new Pair<>(MouseEvent.MOUSE_CLICKED, mouseClick));
 
         for(int i=boxes.length-1;i>=0;i--){
             getChildren().add(boxes[i]);
@@ -235,19 +206,11 @@ public class Card_Pane extends Pane {
 
         getChildren().addAll(texts);
     }
-    public static ArrayList<String> getAudioList() {
-        return audioList;
+    public card_Base getCardBase(){return tarCard;};
+    public void addLocalEventHandler(EventType eventType,EventHandler eventHandler){
+        this.addEventHandler(eventType,eventHandler);
     }
 
-    public static void setAudioList(ArrayList<String> audioList2) {
-        audioList = audioList2;
-    }
-
+    ArrayList<Pair<EventType,EventHandler>> events= new ArrayList<>();
     private static ArrayList<String> audioList = new ArrayList<>();
-
-    public double getBase_damage(){return this.base_damage;}
-    public double getBase_critical_chance(){return this.base_critical_chance;}
-    public void setBase_damage(double base_damage_){this.base_damage = base_damage_;}
-    public void setBase_critical_chance(double base_critical_chance_){this.base_critical_chance = base_critical_chance_;}
-
 }

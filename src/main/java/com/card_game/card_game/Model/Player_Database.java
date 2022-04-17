@@ -14,8 +14,13 @@ public class Player_Database {
     public static void add_Player(Player player){
         if(!isDataSecure) {
             System.out.println("Read data");
-            playerList = (ArrayList<Player>) readObjectFromFile();
-            isDataSecure=true;
+            playerList = get_Player_History();
+        }
+        if(playerList==null){
+            playerList = new ArrayList<>();
+            playerList.add(player);
+            Save_Data();
+            return;
         }
         if(playerList.size()<5){
             for(int i = 0;i<playerList.size();i++){
