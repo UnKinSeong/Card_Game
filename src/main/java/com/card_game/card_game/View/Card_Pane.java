@@ -24,8 +24,11 @@ public class Card_Pane extends Pane {
             rectangleText_view[i].setRectangleFill(Boxes_Colors[i+1]);
             rectangleText_view[i].setTextFill(Color.BLACK);
             rectangleText_view[i].init();
-            rectangleText_view[i].setText("Str");
         }
+        rectangleText_view[0].setText(cardName);
+        rectangleText_view[1].setText(type);
+        rectangleText_view[2].setText(String.format("%.2f",damage));
+        rectangleText_view[3].setText(String.format("%.2f",selfDamage));
         is_init=true;
     }
 
@@ -44,8 +47,11 @@ public class Card_Pane extends Pane {
         Obj_Positions.setRectanglePosWH(background,pos);
         for (int i = 0;i<4;i++){
             rectangleText_view[i].update();
-            rectangleText_view[i].setText("Str");
         }
+        rectangleText_view[0].setText(cardName);
+        rectangleText_view[1].setText(type);
+        rectangleText_view[2].setText(String.format("%.0f",damage));
+        rectangleText_view[3].setText(String.format("%.0f",selfDamage));
     }
 
     private RectangleText_View rectangleText_view[] = new RectangleText_View[4];

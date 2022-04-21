@@ -38,7 +38,6 @@ public class RectangleText_View extends View_Base {
         strokeWidth = Math.min(parent_pane.getHeight(), parent_pane.getWidth()) * 0.005;
         if(isPosition_Related) {
             setRectanglePosRWH(rectangle, Relative_Pos_TPos(parent_pane.getWidth(), parent_pane.getHeight(), position));
-            System.out.println(position[0]+"|"+position[1]+"|"+position[2]+"|"+position[3]);
         }else{
             setRectanglePosWH(rectangle, position);
         }

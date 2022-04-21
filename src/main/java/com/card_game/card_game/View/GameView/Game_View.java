@@ -8,6 +8,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class Game_View extends View_Base {
     public Game_View(Pane mainPane, double[] position, boolean is_Related) {
@@ -22,12 +23,15 @@ public class Game_View extends View_Base {
             boardBoxes_withText[i].init();
         }
         cardPane = new ArrayList<>();
+        is_CardPane_Init = new ArrayList<>();
+        is_CardPane_Destroy = new ArrayList<>();
 
 
-
-
-        parent_pane.getChildren().add(cardPane);
-        cardPane.init();
+        Card_Pane card_pane = new Card_Pane();
+        card_pane.setStatus("Author","Bone",20d,15d);
+        cardPane.add(card_pane);
+        is_CardPane_Init.add(false);
+        is_CardPane_Destroy.add(false);
         is_init = true;
     }
 
@@ -36,7 +40,13 @@ public class Game_View extends View_Base {
         for(RectangleText_View rtv:boardBoxes_withText){
             rtv.clean_Up();
         }
-        cardPane.clean_Up();
+        for(Card_Pane cd:cardPane){
+            cd.clean_Up();
+        }
+        cardPane.clear();
+        is_CardPane_Destroy.clear();
+        is_CardPane_Init.clear();
+
         is_init = false;
     }
 
@@ -53,9 +63,36 @@ public class Game_View extends View_Base {
         for(int i = 0;i<8;i++) {
             boardBoxes_withText[i].update();
         }
-        Obj_Positions.setPanePosWH(cardPane,0,0,100,200);
-        cardPane.update();
+        updateCardPane();
+
     }
+
+    private void updateCardPane(){
+        double pos[] = Obj_Positions.Relative_Pos_TPos(parent_pane.getWidth(),parent_pane.getHeight(),r_Panes_Pos[5]);
+        for(int i = 0;i < cardPane.size();i++){
+            if(is_CardPane_Destroy.get(i)){
+                parent_pane.getChildren().remove(cardPane.get(i));
+            }
+        }
+        strokeWidth = Math.min(parent_pane.getHeight(), parent_pane.getWidth()) * 0.005;
+            double PosX = pos[0]+strokeWidth*2;
+            double PosY = pos[1]+strokeWidth*2;
+            double Height = pos[3]-pos[1] - strokeWidth*4d;
+            double Width = Height/2.5d;
+            double spacing = (pos[2]-pos[0])*0.02;
+        for(int i = 0; i < cardPane.size();i++) {
+            Obj_Positions.setPanePosWH(cardPane.get(i), PosX, PosY, Width, Height);
+            System.out.println(String.format("PosX %.2f PosY %.2f Width %.2f Height %.2f",PosX,PosY,Width,Height));
+            if(is_CardPane_Init.get(i)==false){
+                cardPane.get(i).init();
+                parent_pane.getChildren().add(cardPane.get(i));
+                is_CardPane_Init.set(i, true);
+            }
+            cardPane.get(i).update();
+            PosX += Width + spacing;
+        }
+    }
+
     @Override
     public void render(double dt) {
         if(!is_init)
@@ -63,6 +100,8 @@ public class Game_View extends View_Base {
     }
 
     private ArrayList<Card_Pane> cardPane;
+    private ArrayList<Boolean> is_CardPane_Init;
+    private ArrayList<Boolean> is_CardPane_Destroy;
     private RectangleText_View boardBoxes_withText[] = new RectangleText_View[8];
     private Color paneBoxes_Color[] = {Color.YELLOW,Color.RED,Color.BLUE,Color.DEEPPINK,Color.GREEN,Color.PURPLE,Color.GOLDENROD,Color.RED};
     private final double[][] r_Panes_Pos;{
