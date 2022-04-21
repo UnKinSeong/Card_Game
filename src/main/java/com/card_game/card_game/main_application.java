@@ -1,9 +1,6 @@
 package com.card_game.card_game;
 
 import com.card_game.card_game.Controller.*;
-import com.card_game.card_game.Model.Card.Card_Container;
-import com.card_game.card_game.Model.Player;
-import com.card_game.card_game.Model.Player_Database;
 import com.card_game.card_game.Utility.Audio_Codex;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -31,24 +28,18 @@ public class main_application extends Application {
         };
         initAudio(audios[0]);
         initAudio(audios[1]);
-        Card_Container.init_card_Pool(50);
         Controller_SM.setPane(new Pane());
         Controller_SM.setScene(new Scene(Controller_SM.getPane(),710,400));
         Controller_SM.setStage(stage);
         Controller_SM.getStage().setScene(Controller_SM.getScene());
 
 
-        Player_Database.add_Player(new Player.PlayerBuilder().setPlayerName("Str").build());
-
-
         Controller_SM.addState("Menu",new Menu_Controller());
-        Controller_SM.addState("Game",new Game_Controller());
-        Controller_SM.addState("Score",new Score_Controller());
+        Controller_SM.addState("Start",new Game_Controller());
         Controller_SM.setState("Menu");
 
+        Controller_SM.getState("Start").setAudios(initAudio(audios[3]));
         Controller_SM.getState("Menu").setAudios(initAudio(audios[2]));
-        Controller_SM.getState("Game").setAudios(initAudio(audios[3]));
-        Controller_SM.getState("Score").setAudios(initAudio(audios[4]));
 
 
         Controller_SM.getState("current").init();

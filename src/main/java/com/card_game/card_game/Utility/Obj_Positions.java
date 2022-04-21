@@ -31,11 +31,18 @@ public interface Obj_Positions {
             vBox.setMinHeight(height);
             vBox.setMaxHeight(height);
         }
-        static void setRectanglePosWH(Rectangle rectangle, double layX, double layY, double width, double height) {
-            rectangle.setLayoutX(layX);
-            rectangle.setLayoutY(layY);
-            rectangle.setWidth(width);
-            rectangle.setHeight(height);
+        static void setRectanglePosWH(Rectangle rectangle, double []pos){
+            rectangle.setLayoutX(pos[0]);
+            rectangle.setLayoutY(pos[1]);
+            rectangle.setWidth(pos[2]);
+            rectangle.setHeight(pos[3]);
+        }
+        static void setRectanglePosRWH(Rectangle rectangle, double [] pos){
+            assert pos.length == 4:"The pos array must be size 4";
+            rectangle.setLayoutX(pos[0]);
+            rectangle.setLayoutY(pos[1]);
+            rectangle.setWidth(pos[2]-pos[0]);
+            rectangle.setHeight(pos[3]-pos[1]);
         }
         static void setRPanePosWH(Pane pane, double pane_width, double pane_height, double B_layX, double B_layY, double E_layX, double E_layY){
             pane.setLayoutX(B_layX*pane_width);
@@ -47,17 +54,15 @@ public interface Obj_Positions {
             pane.prefWidth(width);
 
             pane.prefHeight(height);
-
-
         }
 
         static void setPanePosWH(Pane pane, double layX, double layY, double width, double height){
             pane.setLayoutX(layX);
             pane.setLayoutY(layY);
-            pane.minWidth(width);
-            pane.maxWidth(width);
-            pane.minHeight(height);
-            pane.maxWidth(width);
+            pane.setMinWidth(width);
+            pane.setMaxWidth(width);
+            pane.setMinHeight(height);
+            pane.setMaxHeight(height);
         }
         static void setTextPosWH(Text text, double layX, double layY, double width, double height){
             text.setLayoutX(layX);

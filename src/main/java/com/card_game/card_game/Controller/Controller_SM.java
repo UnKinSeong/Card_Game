@@ -6,10 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 
 public abstract class Controller_SM{
     private static final Map<String , Controller_SM> State_SMs = new TreeMap<>();
@@ -81,7 +78,7 @@ public abstract class Controller_SM{
     }
 
     protected abstract void update();
-    protected abstract void draw(double v);
+    protected abstract void render(double v);
     protected AnimationTimer gameLoop = new AnimationTimer() {
         final int MAX_FPS = 120;
         final int MAX_UPS = 120;
@@ -113,7 +110,7 @@ public abstract class Controller_SM{
                 uDeltaTime -= uOPTIONAL_TIME;
             }
             if (fDeltaTime >= fOPTIONAL_TIME) {
-                draw(fDeltaTime/one_Second);
+                render(fDeltaTime/one_Second);
                 cFPS++;
                 fDeltaTime -= fOPTIONAL_TIME;
             }
@@ -135,10 +132,18 @@ public abstract class Controller_SM{
             }
         }
     };
-    private String currentAudio;
+    protected String currentAudio;
     private static String currentState;
+    protected void enter_NextState(String stageName){
+        if(stageName=="Exit"){
+            System.exit(0);
+        }
+        getState("current").clean_Up();
+        setState(stageName);
+        getState("current").setScene(getState("current").getScene());
+        getState("current").init();
+    };
     public ArrayList<String> audios;
-    public abstract void enter_NextState(int id);
     public abstract void clean_Up();
     public abstract void init();
 }
